@@ -31,9 +31,32 @@ public class DistributedLockFactory {
     @Inject
     ApplicationProperties applicationProperties;
 
-    public DistributedLock newLock(String keyName) {
+    //Redis可重入锁
+    public DistributedLock newRedisReentrantLock(String keyName) {
         String lockValue = UUID.randomUUID().toString();
         Integer timeout = applicationProperties.getLockExpireTime();    // 单位s
         return new RedisReentrantLock(redisClient, keyName, lockValue, timeout);
+    }
+
+    //Redis可重入读写锁  mode 为 "read" "write" 两种
+    public DistributedLock newRedisReadWriteLock(String keyName, String mode) {
+        String lockValue = UUID.randomUUID().toString();
+        Integer timeout = applicationProperties.getLockExpireTime();    // 单位s
+        return new RedisReadWriteLock(redisClient, keyName, lockValue, timeout,mode);
+    }
+
+//mysql 可重入锁
+    public DistributedLock newMysqlReentrantLock(String keyName) {
+        String lockValue = UUID.randomUUID().toString();
+        Integer timeout = applicationProperties.getLockExpireTime();
+        return new MysqlReentrantLock(keyName, lockValue,timeout);
+    }
+
+
+    //mysql 读写锁
+    public DistributedLock newMysqlReadWriteLock(String keyName,String mode) {
+        String lockValue = UUID.randomUUID().toString();
+        Integer timeout = applicationProperties.getLockExpireTime();
+        return new MysqlReadWriteLock(keyName, lockValue,timeout,mode);
     }
 }

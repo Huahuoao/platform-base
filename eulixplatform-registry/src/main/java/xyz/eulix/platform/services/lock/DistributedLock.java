@@ -27,7 +27,8 @@ public interface DistributedLock {
     /**
      * 尝试加锁
      */
-    boolean tryLock();
+    boolean tryLock() throws InterruptedException;
+
 
     /**
      * 解锁操作

@@ -66,8 +66,8 @@ public class RedisReentrantLock implements DistributedLock {
         return false;
     }
 
-    public boolean tryLock() {
-        return tryLock(keyName, lockValue, timeout);
+    public boolean tryLock() throws InterruptedException {
+        return tryLock(timeout,TimeUnit.MILLISECONDS);
     }
 
     public void unlock() {
@@ -98,11 +98,11 @@ public class RedisReentrantLock implements DistributedLock {
                 "end; " +
                 "return redis.call('pttl', KEYS[1]);";                              //返回key的剩余过期时间，表示加锁失败
         List<String> list = new ArrayList<>();
-        list.add(command);
-        list.add("1");
-        list.add(key);
-        list.add(timeout.toString());
-        list.add(value);
+        list.add(command); //添加命令
+        list.add("1"); // keyNum
+        list.add(key); //KEYS[1]
+        list.add(timeout.toString());//ARGV[1]
+        list.add(value); //ARGV[2]
         Response result = redisClient.eval(list);
         if (result == null) {
             LOG.debugv("acquire lock success, keyName:{0}, lockValue:{1}, timeout:{2}", key, value, timeout);

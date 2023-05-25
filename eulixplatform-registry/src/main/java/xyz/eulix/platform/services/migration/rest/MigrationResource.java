@@ -57,10 +57,10 @@ public class MigrationResource {
     public BoxMigrationResult migration(@Valid BoxMigrationInfo boxMigrationInfo,
                                         @HeaderParam("Request-Id") @NotBlank String reqId,
                                         @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
-                                        @PathParam("box_uuid") @NotBlank String boxUUID) {
+                                        @PathParam("box_uuid") @NotBlank String boxUUID) throws InterruptedException {
         var boxTokenEntity = tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
 
-        DistributedLock lock = lockFactory.newLock(boxUUID);
+        DistributedLock lock = lockFactory.newRedisReentrantLock(boxUUID);
         // 加锁
         boolean isLocked = lock.tryLock();
         if (isLocked) {
@@ -88,9 +88,9 @@ public class MigrationResource {
     public MigrationRouteResult migrationRoute(@Valid MigrationRouteInfo migrationRouteInfo,
                                                @HeaderParam("Request-Id") @NotBlank String reqId,
                                                @HeaderParam("Box-Reg-Key") @NotBlank String boxRegKey,
-                                               @PathParam("box_uuid") @NotBlank String boxUUID) {
+                                               @PathParam("box_uuid") @NotBlank String boxUUID) throws InterruptedException {
         var boxTokenEntity = tokenService.verifyRegistryBoxRegKey(boxUUID, boxRegKey);
-        DistributedLock lock = lockFactory.newLock(boxUUID);
+        DistributedLock lock = lockFactory.newRedisReentrantLock(boxUUID);
         // 加锁
         boolean isLocked = lock.tryLock();
         if (isLocked) {
